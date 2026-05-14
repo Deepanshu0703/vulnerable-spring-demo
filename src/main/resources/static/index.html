@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevTools Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <h1>⬡ DevTools Portal</h1>
+    <p>Internal Developer Dashboard</p>
+  </div>
+  <nav>
+    <div class="nav-section-label">Directory</div>
+    <div class="nav-item active" data-page="users">
+      <span class="icon">👤</span> User Management
+    </div>
+
+    <div class="nav-section-label">Operations</div>
+    <div class="nav-item" data-page="system">
+      <span class="icon">⚙️</span> System Utilities
+    </div>
+    <div class="nav-item" data-page="files">
+      <span class="icon">📁</span> File Browser
+    </div>
+
+    <div class="nav-section-label">Integrations</div>
+    <div class="nav-item" data-page="http">
+      <span class="icon">🌐</span> HTTP Client
+    </div>
+    <div class="nav-item" data-page="xml">
+      <span class="icon">📄</span> XML Tools
+    </div>
+
+    <div class="nav-section-label">Community</div>
+    <div class="nav-item" data-page="content">
+      <span class="icon">💬</span> Content Board
+    </div>
+  </nav>
+</aside>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<div id="main">
+  <div class="topbar">
+    <h2 id="page-title">User Management</h2>
+    <div class="status-indicator">
+      <div class="dot"></div>
+      <span>Connected · localhost:8080</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── USERS ──────────────────────────────────────────────────────── -->
+    <div id="page-users" class="page active">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Search User</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/users/search</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Username</label>
+              <input id="user-search-input" type="text" placeholder="e.g. alice" />
+            </div>
+            <button id="btn-user-search" class="btn-primary">Search</button>
+          </div>
+          <div id="user-search-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Login</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/users/login</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Username</label>
+              <input id="login-user" type="text" placeholder="admin" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input id="login-pass" type="password" placeholder="••••••" />
+            </div>
+            <button id="btn-user-login" class="btn-primary">Login</button>
+          </div>
+          <div id="user-login-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Lookup by ID</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/users/byId</div>
+          <div class="form-row">
+            <div class="field">
+              <label>User ID</label>
+              <input id="user-id-input" type="text" placeholder="1" />
+            </div>
+            <button id="btn-user-byid" class="btn-primary">Lookup</button>
+          </div>
+          <div id="user-byid-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>List All Users</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/users/list</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Sort by field</label>
+              <input id="user-sort" type="text" placeholder="id" />
+            </div>
+            <button id="btn-user-list" class="btn-primary">List</button>
+          </div>
+          <div id="user-list-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SYSTEM ──────────────────────────────────────────────────────── -->
+    <div id="page-system" class="page">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Ping Host</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/system/ping</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Hostname / IP</label>
+              <input id="ping-host" type="text" placeholder="google.com" />
+            </div>
+            <button id="btn-ping" class="btn-primary">Ping</button>
+          </div>
+          <div id="ping-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>DNS Lookup</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/system/nslookup</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Domain</label>
+              <input id="nslookup-domain" type="text" placeholder="example.com" />
+            </div>
+            <button id="btn-nslookup" class="btn-primary">Lookup</button>
+          </div>
+          <div id="nslookup-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>File Checksum</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/system/digest</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Filename (in /tmp)</label>
+              <input id="digest-file" type="text" placeholder="report.txt" />
+            </div>
+            <button id="btn-digest" class="btn-primary">Compute</button>
+          </div>
+          <div id="digest-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── FILES ──────────────────────────────────────────────────────── -->
+    <div id="page-files" class="page">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Read File</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/files/read</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Filename (relative to app files dir)</label>
+              <input id="file-read-input" type="text" placeholder="readme.txt" />
+            </div>
+            <button id="btn-file-read" class="btn-primary">Read</button>
+          </div>
+          <div id="file-read-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>View File by Path</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/files/view</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Absolute path</label>
+              <input id="file-view-input" type="text" placeholder="/tmp/app-files/notes.txt" />
+            </div>
+            <button id="btn-file-view" class="btn-primary">View</button>
+          </div>
+          <div id="file-view-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>List Directory</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/files/list</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Sub-directory (optional)</label>
+              <input id="file-list-input" type="text" placeholder="" />
+            </div>
+            <button id="btn-file-list" class="btn-primary">List</button>
+          </div>
+          <div id="file-list-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── HTTP CLIENT ─────────────────────────────────────────────────── -->
+    <div id="page-http" class="page">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Fetch URL</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/fetch/url</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Target URL</label>
+              <input id="fetch-url-input" type="text" placeholder="https://httpbin.org/get" />
+            </div>
+            <button id="btn-fetch-url" class="btn-primary">Fetch</button>
+          </div>
+          <div id="fetch-url-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Link Preview</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/fetch/preview</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Link</label>
+              <input id="fetch-preview-input" type="text" placeholder="https://example.com" />
+            </div>
+            <button id="btn-fetch-preview" class="btn-primary">Preview</button>
+          </div>
+          <div id="fetch-preview-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Register Webhook</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/fetch/webhook</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Callback URL</label>
+              <input id="webhook-url" type="text" placeholder="https://your-listener.com/hook" />
+            </div>
+            <div class="field">
+              <label>Event type</label>
+              <input id="webhook-event" type="text" placeholder="deploy" />
+            </div>
+            <button id="btn-fetch-webhook" class="btn-primary">Register</button>
+          </div>
+          <div id="webhook-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── XML TOOLS ───────────────────────────────────────────────────── -->
+    <div id="page-xml" class="page">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Parse XML</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/xml/parse</div>
+          <label>XML Body</label>
+          <textarea id="xml-parse-input" placeholder='&lt;user&gt;&lt;name&gt;Alice&lt;/name&gt;&lt;url&gt;https://example.com&lt;/url&gt;&lt;/user&gt;'></textarea>
+          <div style="margin-top:10px">
+            <button id="btn-xml-parse" class="btn-primary">Parse</button>
+          </div>
+          <div id="xml-parse-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Import User from XML</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/xml/import-user</div>
+          <label>XML Body</label>
+          <textarea id="xml-import-input" placeholder='&lt;user&gt;&lt;username&gt;bob&lt;/username&gt;&lt;email&gt;bob@demo.com&lt;/email&gt;&lt;role&gt;USER&lt;/role&gt;&lt;/user&gt;'></textarea>
+          <div style="margin-top:10px">
+            <button id="btn-xml-import" class="btn-primary">Import</button>
+          </div>
+          <div id="xml-import-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CONTENT ─────────────────────────────────────────────────────── -->
+    <div id="page-content" class="page">
+      <div class="grid-2">
+
+        <div class="card">
+          <h3>Echo Message</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/content/echo</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Message</label>
+              <input id="echo-input" type="text" placeholder="Hello, world!" />
+            </div>
+            <button id="btn-echo" class="btn-primary">Send</button>
+          </div>
+          <div id="echo-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Search</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/content/search</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Query</label>
+              <input id="search-input" type="text" placeholder="spring boot" />
+            </div>
+            <button id="btn-search" class="btn-primary">Search</button>
+          </div>
+          <div id="search-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Greeting Page</h3>
+          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/content/greet</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Name</label>
+              <input id="greet-input" type="text" placeholder="Alice" />
+            </div>
+            <button id="btn-greet" class="btn-primary">Greet</button>
+          </div>
+          <div id="greet-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+        <div class="card">
+          <h3>Post a Comment</h3>
+          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/content/comment</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Author</label>
+              <input id="comment-author" type="text" placeholder="Anonymous" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label>Comment</label>
+              <input id="comment-input" type="text" placeholder="Great post!" />
+            </div>
+            <button id="btn-comment" class="btn-primary">Post</button>
+          </div>
+          <div id="comment-resp" class="response-box empty">— response will appear here —</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script src="app.js"></script>
+</body>
+</html>
