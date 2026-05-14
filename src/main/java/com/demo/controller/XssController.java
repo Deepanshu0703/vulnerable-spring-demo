@@ -3,6 +3,7 @@ package com.demo.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.Map;
 
@@ -21,9 +22,10 @@ public class XssController {
 
     @GetMapping(value = "/search", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> search(@RequestParam String q) {
+        String safeQ = HtmlUtils.htmlEscape(q);
         String html = "<html><body>"
                 + "<h2>Search Results</h2>"
-                + "<p>Showing results for: <b>" + q + "</b></p>"
+                + "<p>Showing results for: <b>" + safeQ + "</b></p>"
                 + "<p>No results found.</p>"
                 + "</body></html>";
         return ResponseEntity.ok(html);
