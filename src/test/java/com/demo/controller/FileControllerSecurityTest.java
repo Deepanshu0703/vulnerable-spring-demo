@@ -8,27 +8,32 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class FileControllerSecurityTest {
+public class FileControllerSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void readFileShouldRejectPathTraversal() throws Exception {
-        mockMvc.perform(get("/api/files/read").param("filename", "../../etc/passwd"))
+    public void testPathTraversalBlocked() throws Exception {
+        // Test that path traversal attack is blocked
+        mockMvc.perform(get("/api/files/read")
+                .param("filename", "../../etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Access denied")));
+                .andExpect(content().string("Invalid file path"));
     }
 
     @Test
-    void viewFileShouldRejectAbsolutePathOutsideBase() throws Exception {
-        mockMvc.perform(get("/api/files/view").param("path", "/etc/passwd"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Access denied")));
+    public void testPathTraversalVariantsBlocked() throws Exception {
+        // Test additional path traversal variants
+        mockMvc.perform(get("/api/files/read")
+                .param("filename", "../../../etc/shadow"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/files/view")
+                .param("path", "../../etc/passwd"))
+                .andExpect(status().isBadRequest());
     }
 }

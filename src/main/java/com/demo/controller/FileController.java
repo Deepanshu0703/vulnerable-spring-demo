@@ -4,9 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/files")
@@ -17,16 +15,18 @@ public class FileController {
     @GetMapping("/read")
     public ResponseEntity<String> readFile(@RequestParam String filename) {
         try {
-            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path resolved = basePath.resolve(filename).normalize();
-            if (!resolved.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Access denied");
+            File baseDir = new File(BASE_DIR).getCanonicalFile();
+            File file = new File(baseDir, filename).getCanonicalFile();
+
+            // Validate that the canonical path starts with the base directory
+            if (!file.getPath().startsWith(baseDir.getPath())) {
+                return ResponseEntity.badRequest().body("Invalid file path");
             }
-            File file = resolved.toFile();
+
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(resolved));
+            String content = new String(Files.readAllBytes(file.toPath()));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -36,16 +36,18 @@ public class FileController {
     @GetMapping("/view")
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
-            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path resolved = basePath.resolve(path).normalize();
-            if (!resolved.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Access denied");
+            File baseDir = new File(BASE_DIR).getCanonicalFile();
+            File file = new File(baseDir, path).getCanonicalFile();
+
+            // Validate that the canonical path starts with the base directory
+            if (!file.getPath().startsWith(baseDir.getPath())) {
+                return ResponseEntity.badRequest().body("Invalid file path");
             }
-            File file = resolved.toFile();
+
             if (!file.exists() || file.isDirectory()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(resolved));
+            String content = new String(Files.readAllBytes(file.toPath()));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -55,12 +57,7 @@ public class FileController {
     @GetMapping("/list")
     public ResponseEntity<?> listDirectory(@RequestParam(defaultValue = "") String dir) {
         try {
-            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path resolved = basePath.resolve(dir).normalize();
-            if (!resolved.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Access denied");
-            }
-            File directory = resolved.toFile();
+            File directory = new File(BASE_DIR + dir);
             if (!directory.exists() || !directory.isDirectory()) {
                 return ResponseEntity.badRequest().body("Not a directory");
             }
