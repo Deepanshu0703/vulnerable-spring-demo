@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.vscode
+.windsurf
+.gradle
+build
+out
+*.iml
+*.log
+.DS_Store
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
