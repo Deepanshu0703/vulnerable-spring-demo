@@ -40,7 +40,7 @@ public class UserController {
         try {
             Long.parseLong(id);
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid user ID"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid id"));
         }
         String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, id);
