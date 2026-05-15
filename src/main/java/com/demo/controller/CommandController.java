@@ -11,38 +11,46 @@ import java.util.regex.Pattern;
 @RequestMapping("/api/system")
 public class CommandController {
 
-    private static final Pattern SAFE_DOMAIN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-]{0,253}[a-zA-Z0-9]$");
-    private static final Pattern SAFE_FILENAME = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9._\\-]{0,99}$");
+    private static final Pattern VALID_DOMAIN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-]{0,253}[a-zA-Z0-9]$");
+    private static final Pattern VALID_FILENAME = Pattern.compile("^[a-zA-Z0-9._\\-]{1,255}$");
 
     @GetMapping("/nslookup")
-    public ResponseEntity<String> nslookup(@RequestParam String domain) throws Exception {
-        if (!SAFE_DOMAIN.matcher(domain).matches()) {
-            return ResponseEntity.badRequest().body("Error: Invalid domain name");
+    public ResponseEntity<String> nslookup(@RequestParam String domain) {
+        if (!VALID_DOMAIN.matcher(domain).matches()) {
+            return ResponseEntity.badRequest().body("Invalid domain name");
         }
-        ProcessBuilder pb = new ProcessBuilder("nslookup", domain);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-        String output = readProcessOutput(process);
-        return ResponseEntity.ok(output);
+        try {
+            ProcessBuilder pb = new ProcessBuilder("nslookup", domain);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            String output = readProcessOutput(process);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/digest")
-    public ResponseEntity<String> fileDigest(@RequestParam String filename) throws Exception {
-        if (!SAFE_FILENAME.matcher(filename).matches()) {
-            return ResponseEntity.badRequest().body("Error: Invalid filename");
+    public ResponseEntity<String> fileDigest(@RequestParam String filename) {
+        if (!VALID_FILENAME.matcher(filename).matches()) {
+            return ResponseEntity.badRequest().body("Invalid filename");
         }
-        ProcessBuilder pb = new ProcessBuilder("md5sum", "/tmp/" + filename);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-        String output = readProcessOutput(process);
-        return ResponseEntity.ok(output);
+        try {
+            ProcessBuilder pb = new ProcessBuilder("md5sum", "/tmp/" + filename);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            String output = readProcessOutput(process);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
     private String readProcessOutput(Process process) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
         StringBuilder output = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) {
+        while ((line = stdOut.readLine()) != null) {
             output.append(line).append("\n");
         }
         process.waitFor();

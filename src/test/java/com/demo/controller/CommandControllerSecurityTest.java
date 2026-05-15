@@ -6,8 +6,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -17,30 +20,34 @@ class CommandControllerSecurityTest {
     private MockMvc mockMvc;
 
     @Test
-    void nslookup_commandInjectionPayload_isRejected() throws Exception {
+    void nslookup_rejectsCommandInjection() throws Exception {
         mockMvc.perform(get("/api/system/nslookup")
-                        .param("domain", "example.com; cat /etc/passwd"))
+                .param("domain", "example.com; cat /etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.not(
-                        org.hamcrest.Matchers.containsString("root:"))));
+                .andExpect(content().string(not(containsString("root:"))));
     }
 
     @Test
-    void digest_commandInjectionPayload_isRejected() throws Exception {
+    void nslookup_allowsValidDomain() throws Exception {
+        int status = mockMvc.perform(get("/api/system/nslookup")
+                .param("domain", "example.com"))
+                .andReturn().getResponse().getStatus();
+        assertNotEquals(400, status);
+    }
+
+    @Test
+    void digest_rejectsCommandInjection() throws Exception {
         mockMvc.perform(get("/api/system/digest")
-                        .param("filename", "report.txt cat/etc/shadow"))
+                .param("filename", "report.txt cat/etc/shadow"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.not(
-                        org.hamcrest.Matchers.containsString("root:"))));
+                .andExpect(content().string(not(containsString("root:"))));
     }
 
     @Test
-    void nslookup_validDomain_isNotRejectedByValidation() throws Exception {
-        mockMvc.perform(get("/api/system/nslookup")
-                        .param("domain", "example.com"))
-                .andExpect(result -> {
-                    int status = result.getResponse().getStatus();
-                    assert status != 400 : "Valid domain must not be rejected by input validation";
-                });
+    void digest_allowsValidFilename() throws Exception {
+        int status = mockMvc.perform(get("/api/system/digest")
+                .param("filename", "report.txt"))
+                .andReturn().getResponse().getStatus();
+        assertNotEquals(400, status);
     }
 }
