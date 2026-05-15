@@ -5,25 +5,42 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/system")
 public class CommandController {
 
+    private static final Pattern VALID_DOMAIN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-]{0,253}[a-zA-Z0-9]$");
+    private static final Pattern VALID_FILENAME = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9._\\-]{0,99}$");
+
     @GetMapping("/nslookup")
-    public ResponseEntity<String> nslookup(@RequestParam String domain) throws Exception {
-        String command = "nslookup " + domain;
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
-        String output = readProcessOutput(process);
-        return ResponseEntity.ok(output);
+    public ResponseEntity<?> nslookup(@RequestParam String domain) {
+        if (!VALID_DOMAIN.matcher(domain).matches()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid domain"));
+        }
+        try {
+            Process process = new ProcessBuilder("nslookup", domain).start();
+            String output = readProcessOutput(process);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/digest")
-    public ResponseEntity<String> fileDigest(@RequestParam String filename) throws Exception {
-        String command = "md5sum /tmp/" + filename;
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
-        String output = readProcessOutput(process);
-        return ResponseEntity.ok(output);
+    public ResponseEntity<?> fileDigest(@RequestParam String filename) {
+        if (!VALID_FILENAME.matcher(filename).matches()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid filename"));
+        }
+        try {
+            Process process = new ProcessBuilder("md5sum", "/tmp/" + filename).start();
+            String output = readProcessOutput(process);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
     private String readProcessOutput(Process process) throws Exception {
