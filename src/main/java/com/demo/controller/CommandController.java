@@ -5,23 +5,35 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/system")
 public class CommandController {
 
+    private static final Pattern DOMAIN_PATTERN = Pattern.compile("^[a-zA-Z0-9.\\-]+$");
+    private static final Pattern FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9.\\-_]+$");
+
     @GetMapping("/nslookup")
     public ResponseEntity<String> nslookup(@RequestParam String domain) throws Exception {
-        String command = "nslookup " + domain;
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+        if (domain == null || domain.isBlank() || !DOMAIN_PATTERN.matcher(domain).matches()) {
+            return ResponseEntity.badRequest().body("Invalid domain. Only alphanumeric characters, dots, and hyphens are allowed.");
+        }
+        ProcessBuilder pb = new ProcessBuilder("nslookup", domain);
+        pb.redirectErrorStream(false);
+        Process process = pb.start();
         String output = readProcessOutput(process);
         return ResponseEntity.ok(output);
     }
 
     @GetMapping("/digest")
     public ResponseEntity<String> fileDigest(@RequestParam String filename) throws Exception {
-        String command = "md5sum /tmp/" + filename;
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+        if (filename == null || filename.isBlank() || !FILENAME_PATTERN.matcher(filename).matches()) {
+            return ResponseEntity.badRequest().body("Invalid filename. Only alphanumeric characters, dots, hyphens, and underscores are allowed.");
+        }
+        ProcessBuilder pb = new ProcessBuilder("md5sum", "/tmp/" + filename);
+        pb.redirectErrorStream(false);
+        Process process = pb.start();
         String output = readProcessOutput(process);
         return ResponseEntity.ok(output);
     }
