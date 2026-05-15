@@ -28,14 +28,6 @@
       <span class="icon">📁</span> File Browser
     </div>
 
-    <div class="nav-section-label">Integrations</div>
-    <div class="nav-item" data-page="http">
-      <span class="icon">🌐</span> HTTP Client
-    </div>
-    <div class="nav-item" data-page="xml">
-      <span class="icon">📄</span> XML Tools
-    </div>
-
     <div class="nav-section-label">Community</div>
     <div class="nav-item" data-page="content">
       <span class="icon">💬</span> Content Board
@@ -123,19 +115,6 @@
       <div class="grid-2">
 
         <div class="card">
-          <h3>Ping Host</h3>
-          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/system/ping</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Hostname / IP</label>
-              <input id="ping-host" type="text" placeholder="google.com" />
-            </div>
-            <button id="btn-ping" class="btn-primary">Ping</button>
-          </div>
-          <div id="ping-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-        <div class="card">
           <h3>DNS Lookup</h3>
           <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/system/nslookup</div>
           <div class="form-row">
@@ -205,85 +184,6 @@
             <button id="btn-file-list" class="btn-primary">List</button>
           </div>
           <div id="file-list-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ── HTTP CLIENT ─────────────────────────────────────────────────── -->
-    <div id="page-http" class="page">
-      <div class="grid-2">
-
-        <div class="card">
-          <h3>Fetch URL</h3>
-          <div class="endpoint-label"><span class="badge badge-get">GET</span> /api/fetch/url</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Target URL</label>
-              <input id="fetch-url-input" type="text" placeholder="https://httpbin.org/get" />
-            </div>
-            <button id="btn-fetch-url" class="btn-primary">Fetch</button>
-          </div>
-          <div id="fetch-url-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-        <div class="card">
-          <h3>Link Preview</h3>
-          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/fetch/preview</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Link</label>
-              <input id="fetch-preview-input" type="text" placeholder="https://example.com" />
-            </div>
-            <button id="btn-fetch-preview" class="btn-primary">Preview</button>
-          </div>
-          <div id="fetch-preview-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-        <div class="card">
-          <h3>Register Webhook</h3>
-          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/fetch/webhook</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Callback URL</label>
-              <input id="webhook-url" type="text" placeholder="https://your-listener.com/hook" />
-            </div>
-            <div class="field">
-              <label>Event type</label>
-              <input id="webhook-event" type="text" placeholder="deploy" />
-            </div>
-            <button id="btn-fetch-webhook" class="btn-primary">Register</button>
-          </div>
-          <div id="webhook-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ── XML TOOLS ───────────────────────────────────────────────────── -->
-    <div id="page-xml" class="page">
-      <div class="grid-2">
-
-        <div class="card">
-          <h3>Parse XML</h3>
-          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/xml/parse</div>
-          <label>XML Body</label>
-          <textarea id="xml-parse-input" placeholder='&lt;user&gt;&lt;name&gt;Alice&lt;/name&gt;&lt;url&gt;https://example.com&lt;/url&gt;&lt;/user&gt;'></textarea>
-          <div style="margin-top:10px">
-            <button id="btn-xml-parse" class="btn-primary">Parse</button>
-          </div>
-          <div id="xml-parse-resp" class="response-box empty">— response will appear here —</div>
-        </div>
-
-        <div class="card">
-          <h3>Import User from XML</h3>
-          <div class="endpoint-label"><span class="badge badge-post">POST</span> /api/xml/import-user</div>
-          <label>XML Body</label>
-          <textarea id="xml-import-input" placeholder='&lt;user&gt;&lt;username&gt;bob&lt;/username&gt;&lt;email&gt;bob@demo.com&lt;/email&gt;&lt;role&gt;USER&lt;/role&gt;&lt;/user&gt;'></textarea>
-          <div style="margin-top:10px">
-            <button id="btn-xml-import" class="btn-primary">Import</button>
-          </div>
-          <div id="xml-import-resp" class="response-box empty">— response will appear here —</div>
         </div>
 
       </div>
