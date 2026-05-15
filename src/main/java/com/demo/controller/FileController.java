@@ -17,12 +17,9 @@ public class FileController {
         try {
             File baseDir = new File(BASE_DIR).getCanonicalFile();
             File file = new File(baseDir, filename).getCanonicalFile();
-
-            // Validate that the canonical path starts with the base directory
-            if (!file.getPath().startsWith(baseDir.getPath())) {
-                return ResponseEntity.badRequest().body("Invalid file path");
+            if (!file.toPath().startsWith(baseDir.toPath())) {
+                return ResponseEntity.badRequest().body("Invalid path");
             }
-
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }
@@ -36,14 +33,7 @@ public class FileController {
     @GetMapping("/view")
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
-            File baseDir = new File(BASE_DIR).getCanonicalFile();
-            File file = new File(baseDir, path).getCanonicalFile();
-
-            // Validate that the canonical path starts with the base directory
-            if (!file.getPath().startsWith(baseDir.getPath())) {
-                return ResponseEntity.badRequest().body("Invalid file path");
-            }
-
+            File file = new File(path);
             if (!file.exists() || file.isDirectory()) {
                 return ResponseEntity.notFound().build();
             }
