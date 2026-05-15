@@ -13,18 +13,20 @@ public class XssController {
 
     @GetMapping(value = "/echo", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> echo(@RequestParam String message) {
+        String safe = HtmlUtils.htmlEscape(message);
         String html = "<html><body>"
                 + "<h2>Echo</h2>"
-                + "<p>You said: " + HtmlUtils.htmlEscape(message) + "</p>"
+                + "<p>You said: " + safe + "</p>"
                 + "</body></html>";
         return ResponseEntity.ok(html);
     }
 
     @GetMapping(value = "/search", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> search(@RequestParam String q) {
+        String safe = HtmlUtils.htmlEscape(q);
         String html = "<html><body>"
                 + "<h2>Search Results</h2>"
-                + "<p>Showing results for: <b>" + HtmlUtils.htmlEscape(q) + "</b></p>"
+                + "<p>Showing results for: <b>" + safe + "</b></p>"
                 + "<p>No results found.</p>"
                 + "</body></html>";
         return ResponseEntity.ok(html);
@@ -32,8 +34,9 @@ public class XssController {
 
     @GetMapping(value = "/greet", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> greet(@RequestParam String name) {
+        String safe = HtmlUtils.htmlEscape(name);
         String html = "<html><body>"
-                + "<h1>Welcome, " + HtmlUtils.htmlEscape(name) + "!</h1>"
+                + "<h1>Welcome, " + safe + "!</h1>"
                 + "</body></html>";
         return ResponseEntity.ok(html);
     }
@@ -41,10 +44,12 @@ public class XssController {
     @PostMapping(value = "/comment", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> postComment(@RequestParam String comment,
                                                @RequestParam(defaultValue = "Anonymous") String author) {
+        String safeAuthor = HtmlUtils.htmlEscape(author);
+        String safeComment = HtmlUtils.htmlEscape(comment);
         String html = "<html><body>"
                 + "<h2>Comment Posted</h2>"
                 + "<div class='comment'>"
-                + "<strong>" + HtmlUtils.htmlEscape(author) + "</strong>: " + HtmlUtils.htmlEscape(comment)
+                + "<strong>" + safeAuthor + "</strong>: " + safeComment
                 + "</div>"
                 + "</body></html>";
         return ResponseEntity.ok(html);
