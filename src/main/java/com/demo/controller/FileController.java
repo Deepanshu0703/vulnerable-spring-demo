@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/files")
@@ -18,16 +17,16 @@ public class FileController {
     @GetMapping("/read")
     public ResponseEntity<String> readFile(@RequestParam String filename) {
         try {
-            Path basePath = Paths.get(BASE_DIR).toAbsolutePath().normalize();
-            Path resolvedPath = basePath.resolve(filename).normalize();
-            if (!resolvedPath.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Error: Invalid file path");
+            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(filename).normalize();
+            if (!filePath.startsWith(basePath)) {
+                return ResponseEntity.badRequest().body("Access denied");
             }
-            File file = resolvedPath.toFile();
+            File file = filePath.toFile();
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(resolvedPath));
+            String content = new String(Files.readAllBytes(filePath));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -37,16 +36,16 @@ public class FileController {
     @GetMapping("/view")
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
-            Path basePath = Paths.get(BASE_DIR).toAbsolutePath().normalize();
-            Path resolvedPath = Paths.get(path).toAbsolutePath().normalize();
-            if (!resolvedPath.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Error: Access denied - path outside allowed directory");
+            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(path).normalize();
+            if (!filePath.startsWith(basePath)) {
+                return ResponseEntity.badRequest().body("Access denied");
             }
-            File file = resolvedPath.toFile();
+            File file = filePath.toFile();
             if (!file.exists() || file.isDirectory()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(resolvedPath));
+            String content = new String(Files.readAllBytes(filePath));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -56,12 +55,12 @@ public class FileController {
     @GetMapping("/list")
     public ResponseEntity<?> listDirectory(@RequestParam(defaultValue = "") String dir) {
         try {
-            Path basePath = Paths.get(BASE_DIR).toAbsolutePath().normalize();
-            Path resolvedPath = basePath.resolve(dir).normalize();
-            if (!resolvedPath.startsWith(basePath)) {
-                return ResponseEntity.badRequest().body("Error: Invalid directory path");
+            Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
+            Path dirPath = basePath.resolve(dir).normalize();
+            if (!dirPath.startsWith(basePath)) {
+                return ResponseEntity.badRequest().body("Access denied");
             }
-            File directory = resolvedPath.toFile();
+            File directory = dirPath.toFile();
             if (!directory.exists() || !directory.isDirectory()) {
                 return ResponseEntity.badRequest().body("Not a directory");
             }

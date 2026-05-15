@@ -8,6 +8,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -17,20 +19,18 @@ class FileControllerSecurityTest {
     private MockMvc mockMvc;
 
     @Test
-    void readFile_pathTraversalPayload_isRejected() throws Exception {
+    void read_rejectsPathTraversal() throws Exception {
         mockMvc.perform(get("/api/files/read")
-                        .param("filename", "../../etc/passwd"))
+                .param("filename", "../../etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.not(
-                        org.hamcrest.Matchers.containsString("root:"))));
+                .andExpect(content().string(not(containsString("root:"))));
     }
 
     @Test
-    void viewFile_absolutePathTraversal_isRejected() throws Exception {
+    void view_rejectsAbsolutePathTraversal() throws Exception {
         mockMvc.perform(get("/api/files/view")
-                        .param("path", "/etc/passwd"))
+                .param("path", "/etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.not(
-                        org.hamcrest.Matchers.containsString("root:"))));
+                .andExpect(content().string(not(containsString("root:"))));
     }
 }
