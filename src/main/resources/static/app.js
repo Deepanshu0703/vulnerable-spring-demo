@@ -7,8 +7,6 @@ const titles = {
     users:   'User Management',
     system:  'System Utilities',
     files:   'File Browser',
-    http:    'HTTP Client',
-    xml:     'XML Tools',
     content: 'Content Board',
 };
 
@@ -78,11 +76,6 @@ box('btn-user-list').onclick = async () => {
 };
 
 // ── SYSTEM ───────────────────────────────────────────────────────────────────
-box('btn-ping').onclick = async () => {
-    const r = await api('GET', '/api/system/ping', { host: box('ping-host').value });
-    show(box('ping-resp'), r.data, !r.ok);
-};
-
 box('btn-nslookup').onclick = async () => {
     const r = await api('GET', '/api/system/nslookup', { domain: box('nslookup-domain').value });
     show(box('nslookup-resp'), r.data, !r.ok);
@@ -107,34 +100,6 @@ box('btn-file-view').onclick = async () => {
 box('btn-file-list').onclick = async () => {
     const r = await api('GET', '/api/files/list', { dir: box('file-list-input').value });
     show(box('file-list-resp'), r.data, !r.ok);
-};
-
-// ── HTTP CLIENT ───────────────────────────────────────────────────────────────
-box('btn-fetch-url').onclick = async () => {
-    const r = await api('GET', '/api/fetch/url', { target: box('fetch-url-input').value });
-    show(box('fetch-url-resp'), r.data, !r.ok);
-};
-
-box('btn-fetch-preview').onclick = async () => {
-    const r = await api('POST', '/api/fetch/preview', {}, { link: box('fetch-preview-input').value });
-    show(box('fetch-preview-resp'), r.data, !r.ok);
-};
-
-box('btn-fetch-webhook').onclick = async () => {
-    const r = await api('POST', '/api/fetch/webhook', {},
-        { callbackUrl: box('webhook-url').value, event: box('webhook-event').value });
-    show(box('webhook-resp'), r.data, !r.ok);
-};
-
-// ── XML ───────────────────────────────────────────────────────────────────────
-box('btn-xml-parse').onclick = async () => {
-    const r = await api('POST', '/api/xml/parse', {}, box('xml-parse-input').value);
-    show(box('xml-parse-resp'), r.data, !r.ok);
-};
-
-box('btn-xml-import').onclick = async () => {
-    const r = await api('POST', '/api/xml/import-user', {}, box('xml-import-input').value);
-    show(box('xml-import-resp'), r.data, !r.ok);
 };
 
 // ── CONTENT ───────────────────────────────────────────────────────────────────

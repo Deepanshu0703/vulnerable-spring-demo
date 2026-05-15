@@ -10,14 +10,6 @@ import java.io.InputStreamReader;
 @RequestMapping("/api/system")
 public class CommandController {
 
-    @GetMapping("/ping")
-    public ResponseEntity<String> pingHost(@RequestParam String host) throws Exception {
-        String command = "ping -c 2 " + host;
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
-        String output = readProcessOutput(process);
-        return ResponseEntity.ok(output);
-    }
-
     @GetMapping("/nslookup")
     public ResponseEntity<String> nslookup(@RequestParam String domain) throws Exception {
         String command = "nslookup " + domain;
