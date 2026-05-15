@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
@@ -13,44 +12,43 @@ import java.util.regex.Pattern;
 @RequestMapping("/api/system")
 public class CommandController {
 
-    private static final Pattern DOMAIN_PATTERN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-]{0,253}[a-zA-Z0-9]$");
-    private static final Pattern FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9._\\-]{0,254}$");
-    private static final String ALLOWED_DIR = "/tmp";
+    private static final Pattern VALID_DOMAIN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-]+$");
+    private static final Pattern VALID_FILENAME = Pattern.compile("^[a-zA-Z0-9._\\-]+$");
 
     @GetMapping("/nslookup")
     public ResponseEntity<String> nslookup(@RequestParam String domain) throws Exception {
-        if (!DOMAIN_PATTERN.matcher(domain).matches()) {
-            return ResponseEntity.badRequest().body("Invalid domain name");
+        if (!VALID_DOMAIN.matcher(domain).matches()) {
+            return ResponseEntity.badRequest().body("Invalid domain");
         }
-        ProcessBuilder pb = new ProcessBuilder("nslookup", domain);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
+        Process process = new ProcessBuilder("nslookup", domain).start();
         String output = readProcessOutput(process);
         return ResponseEntity.ok(output);
     }
 
     @GetMapping("/digest")
     public ResponseEntity<String> fileDigest(@RequestParam String filename) throws Exception {
-        if (!FILENAME_PATTERN.matcher(filename).matches()) {
+        if (!VALID_FILENAME.matcher(filename).matches()) {
             return ResponseEntity.badRequest().body("Invalid filename");
         }
-        Path resolved = Path.of(ALLOWED_DIR, filename).normalize().toAbsolutePath();
-        if (!resolved.startsWith(Path.of(ALLOWED_DIR).toAbsolutePath())) {
+        String filePath = Path.of("/tmp", filename).normalize().toString();
+        if (!filePath.startsWith("/tmp/")) {
             return ResponseEntity.badRequest().body("Invalid filename");
         }
-        ProcessBuilder pb = new ProcessBuilder("md5sum", resolved.toString());
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
+        Process process = new ProcessBuilder("md5sum", filePath).start();
         String output = readProcessOutput(process);
         return ResponseEntity.ok(output);
     }
 
     private String readProcessOutput(Process process) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         StringBuilder output = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) {
+        while ((line = stdOut.readLine()) != null) {
             output.append(line).append("\n");
+        }
+        while ((line = stdErr.readLine()) != null) {
+            output.append("[err] ").append(line).append("\n");
         }
         process.waitFor();
         return output.toString();

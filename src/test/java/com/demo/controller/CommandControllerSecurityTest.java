@@ -17,14 +17,14 @@ class CommandControllerSecurityTest {
     private MockMvc mockMvc;
 
     @Test
-    void nslookupShouldRejectCommandInjection() throws Exception {
+    void nslookup_commandInjection_isBlocked() throws Exception {
         mockMvc.perform(get("/api/system/nslookup").param("domain", "example.com; cat /etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid domain name"));
+                .andExpect(content().string("Invalid domain"));
     }
 
     @Test
-    void digestShouldRejectCommandInjection() throws Exception {
+    void digest_commandInjection_isBlocked() throws Exception {
         mockMvc.perform(get("/api/system/digest").param("filename", "report.txt cat/etc/shadow"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid filename"));
