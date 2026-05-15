@@ -6,8 +6,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -19,16 +17,16 @@ class FileControllerSecurityTest {
     private MockMvc mockMvc;
 
     @Test
-    void readShouldRejectPathTraversal() throws Exception {
+    void read_pathTraversal_isBlocked() throws Exception {
         mockMvc.perform(get("/api/files/read").param("filename", "../../etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Invalid filename")));
+                .andExpect(content().string("Invalid path"));
     }
 
     @Test
-    void viewShouldRejectAbsolutePathTraversal() throws Exception {
+    void view_absolutePathOutsideBase_isBlocked() throws Exception {
         mockMvc.perform(get("/api/files/view").param("path", "/etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Invalid path")));
+                .andExpect(content().string("Invalid path"));
     }
 }

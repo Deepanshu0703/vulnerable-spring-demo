@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -11,14 +12,14 @@ import java.nio.file.Path;
 @RequestMapping("/api/files")
 public class FileController {
 
-    private static final Path BASE_DIR = Path.of("/tmp/app-files").toAbsolutePath().normalize();
+    private static final String BASE_DIR = "/tmp/app-files/";
 
     @GetMapping("/read")
     public ResponseEntity<String> readFile(@RequestParam String filename) {
         try {
-            Path resolved = BASE_DIR.resolve(filename).normalize().toAbsolutePath();
-            if (!resolved.startsWith(BASE_DIR)) {
-                return ResponseEntity.badRequest().body("Invalid filename");
+            Path resolved = Path.of(BASE_DIR, filename).normalize();
+            if (!resolved.startsWith(Path.of(BASE_DIR).normalize())) {
+                return ResponseEntity.badRequest().body("Invalid path");
             }
             File file = resolved.toFile();
             if (!file.exists()) {
@@ -34,8 +35,9 @@ public class FileController {
     @GetMapping("/view")
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
-            Path resolved = BASE_DIR.resolve(path).normalize().toAbsolutePath();
-            if (!resolved.startsWith(BASE_DIR)) {
+            Path resolved = Path.of(path).normalize();
+            Path allowedRoot = Path.of(BASE_DIR).normalize();
+            if (!resolved.startsWith(allowedRoot)) {
                 return ResponseEntity.badRequest().body("Invalid path");
             }
             File file = resolved.toFile();
@@ -52,9 +54,9 @@ public class FileController {
     @GetMapping("/list")
     public ResponseEntity<?> listDirectory(@RequestParam(defaultValue = "") String dir) {
         try {
-            Path resolved = BASE_DIR.resolve(dir).normalize().toAbsolutePath();
-            if (!resolved.startsWith(BASE_DIR)) {
-                return ResponseEntity.badRequest().body("Invalid directory");
+            Path resolved = Path.of(BASE_DIR, dir).normalize();
+            if (!resolved.startsWith(Path.of(BASE_DIR).normalize())) {
+                return ResponseEntity.badRequest().body("Invalid path");
             }
             File directory = resolved.toFile();
             if (!directory.exists() || !directory.isDirectory()) {
