@@ -5,21 +5,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/files")
 public class FileController {
 
-    private static final String BASE_DIR = "/tmp/app-files/";
+    private static final Path BASE_DIR = Path.of("/tmp/app-files").toAbsolutePath().normalize();
 
     @GetMapping("/read")
     public ResponseEntity<String> readFile(@RequestParam String filename) {
         try {
-            File file = new File(BASE_DIR + filename);
+            Path resolved = BASE_DIR.resolve(filename).normalize().toAbsolutePath();
+            if (!resolved.startsWith(BASE_DIR)) {
+                return ResponseEntity.badRequest().body("Invalid filename");
+            }
+            File file = resolved.toFile();
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(file.toPath()));
+            String content = new String(Files.readAllBytes(resolved));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -29,11 +34,15 @@ public class FileController {
     @GetMapping("/view")
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
-            File file = new File(path);
+            Path resolved = BASE_DIR.resolve(path).normalize().toAbsolutePath();
+            if (!resolved.startsWith(BASE_DIR)) {
+                return ResponseEntity.badRequest().body("Invalid path");
+            }
+            File file = resolved.toFile();
             if (!file.exists() || file.isDirectory()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(file.toPath()));
+            String content = new String(Files.readAllBytes(resolved));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -43,7 +52,11 @@ public class FileController {
     @GetMapping("/list")
     public ResponseEntity<?> listDirectory(@RequestParam(defaultValue = "") String dir) {
         try {
-            File directory = new File(BASE_DIR + dir);
+            Path resolved = BASE_DIR.resolve(dir).normalize().toAbsolutePath();
+            if (!resolved.startsWith(BASE_DIR)) {
+                return ResponseEntity.badRequest().body("Invalid directory");
+            }
+            File directory = resolved.toFile();
             if (!directory.exists() || !directory.isDirectory()) {
                 return ResponseEntity.badRequest().body("Not a directory");
             }
