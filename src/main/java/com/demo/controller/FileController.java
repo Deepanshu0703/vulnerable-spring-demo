@@ -17,9 +17,11 @@ public class FileController {
         try {
             File baseDir = new File(BASE_DIR).getCanonicalFile();
             File file = new File(baseDir, filename).getCanonicalFile();
-            if (!file.toPath().startsWith(baseDir.toPath())) {
+
+            if (!file.getPath().startsWith(baseDir.getPath())) {
                 return ResponseEntity.badRequest().body("Invalid path");
             }
+
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }

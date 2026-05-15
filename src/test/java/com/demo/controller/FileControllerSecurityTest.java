@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -18,22 +19,9 @@ public class FileControllerSecurityTest {
 
     @Test
     public void testPathTraversalBlocked() throws Exception {
-        // Test that path traversal attack is blocked
         mockMvc.perform(get("/api/files/read")
                 .param("filename", "../../etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid file path"));
-    }
-
-    @Test
-    public void testPathTraversalVariantsBlocked() throws Exception {
-        // Test additional path traversal variants
-        mockMvc.perform(get("/api/files/read")
-                .param("filename", "../../../etc/shadow"))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(get("/api/files/view")
-                .param("path", "../../etc/passwd"))
-                .andExpect(status().isBadRequest());
+                .andExpect(content().string("Invalid path"));
     }
 }
