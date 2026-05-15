@@ -18,15 +18,15 @@ public class FileController {
     public ResponseEntity<String> readFile(@RequestParam String filename) {
         try {
             Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path filePath = basePath.resolve(filename).normalize();
-            if (!filePath.startsWith(basePath)) {
+            Path resolved = basePath.resolve(filename).normalize();
+            if (!resolved.startsWith(basePath)) {
                 return ResponseEntity.badRequest().body("Access denied");
             }
-            File file = filePath.toFile();
+            File file = resolved.toFile();
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(filePath));
+            String content = new String(Files.readAllBytes(resolved));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -37,15 +37,15 @@ public class FileController {
     public ResponseEntity<String> viewFile(@RequestParam String path) {
         try {
             Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path filePath = basePath.resolve(path).normalize();
-            if (!filePath.startsWith(basePath)) {
+            Path resolved = basePath.resolve(path).normalize();
+            if (!resolved.startsWith(basePath)) {
                 return ResponseEntity.badRequest().body("Access denied");
             }
-            File file = filePath.toFile();
+            File file = resolved.toFile();
             if (!file.exists() || file.isDirectory()) {
                 return ResponseEntity.notFound().build();
             }
-            String content = new String(Files.readAllBytes(filePath));
+            String content = new String(Files.readAllBytes(resolved));
             return ResponseEntity.ok(content);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
@@ -56,11 +56,11 @@ public class FileController {
     public ResponseEntity<?> listDirectory(@RequestParam(defaultValue = "") String dir) {
         try {
             Path basePath = Path.of(BASE_DIR).toAbsolutePath().normalize();
-            Path dirPath = basePath.resolve(dir).normalize();
-            if (!dirPath.startsWith(basePath)) {
+            Path resolved = basePath.resolve(dir).normalize();
+            if (!resolved.startsWith(basePath)) {
                 return ResponseEntity.badRequest().body("Access denied");
             }
-            File directory = dirPath.toFile();
+            File directory = resolved.toFile();
             if (!directory.exists() || !directory.isDirectory()) {
                 return ResponseEntity.badRequest().body("Not a directory");
             }

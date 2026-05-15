@@ -19,18 +19,16 @@ class FileControllerSecurityTest {
     private MockMvc mockMvc;
 
     @Test
-    void read_rejectsPathTraversal() throws Exception {
-        mockMvc.perform(get("/api/files/read")
-                .param("filename", "../../etc/passwd"))
+    void readFileShouldRejectPathTraversal() throws Exception {
+        mockMvc.perform(get("/api/files/read").param("filename", "../../etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(not(containsString("root:"))));
+                .andExpect(content().string(containsString("Access denied")));
     }
 
     @Test
-    void view_rejectsAbsolutePathTraversal() throws Exception {
-        mockMvc.perform(get("/api/files/view")
-                .param("path", "/etc/passwd"))
+    void viewFileShouldRejectAbsolutePathOutsideBase() throws Exception {
+        mockMvc.perform(get("/api/files/view").param("path", "/etc/passwd"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(not(containsString("root:"))));
+                .andExpect(content().string(containsString("Access denied")));
     }
 }
