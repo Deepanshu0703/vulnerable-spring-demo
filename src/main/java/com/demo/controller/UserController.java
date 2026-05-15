@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,13 +35,23 @@ public class UserController {
 
     @GetMapping("/byId")
     public ResponseEntity<?> getUserById(@RequestParam String id) {
-        String sql = "SELECT id, username, email, role FROM users WHERE id = " + id;
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        try {
+            Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid id"));
+        }
+        String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, id);
         return ResponseEntity.ok(results);
     }
 
+    private static final Set<String> ALLOWED_SORT_COLUMNS = Set.of("id", "username", "email", "role");
+
     @GetMapping("/list")
     public ResponseEntity<?> listUsers(@RequestParam(defaultValue = "id") String sortBy) {
+        if (!ALLOWED_SORT_COLUMNS.contains(sortBy.toLowerCase())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid sort column"));
+        }
         String sql = "SELECT id, username, email, role FROM users ORDER BY " + sortBy;
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(results);
