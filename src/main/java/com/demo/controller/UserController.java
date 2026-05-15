@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,15 +18,15 @@ public class UserController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestParam String username) {
-        String sql = "SELECT id, username, email, role FROM users WHERE username = '" + username + "'";
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        String sql = "SELECT id, username, email, role FROM users WHERE username = ?";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, username);
         return ResponseEntity.ok(results);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        String sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, username, password);
         if (!results.isEmpty()) {
             return ResponseEntity.ok(Map.of("status", "login_success", "user", results.get(0)));
         }
@@ -34,13 +35,24 @@ public class UserController {
 
     @GetMapping("/byId")
     public ResponseEntity<?> getUserById(@RequestParam String id) {
-        String sql = "SELECT id, username, email, role FROM users WHERE id = " + id;
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        Long userId;
+        try {
+            userId = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid user ID"));
+        }
+        String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, userId);
         return ResponseEntity.ok(results);
     }
 
+    private static final Set<String> VALID_SORT_COLUMNS = Set.of("id", "username", "email", "role");
+
     @GetMapping("/list")
     public ResponseEntity<?> listUsers(@RequestParam(defaultValue = "id") String sortBy) {
+        if (!VALID_SORT_COLUMNS.contains(sortBy)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid sort column"));
+        }
         String sql = "SELECT id, username, email, role FROM users ORDER BY " + sortBy;
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(results);
