@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,19 +15,17 @@ public class UserController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final Set<String> ALLOWED_SORT_COLUMNS = Set.of("id", "username", "email", "role");
-
     @GetMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestParam String username) {
-        String sql = "SELECT id, username, email, role FROM users WHERE username = ?";
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, username);
+        String sql = "SELECT id, username, email, role FROM users WHERE username = '" + username + "'";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(results);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, username, password);
+        String sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         if (!results.isEmpty()) {
             return ResponseEntity.ok(Map.of("status", "login_success", "user", results.get(0)));
         }
@@ -44,7 +41,9 @@ public class UserController {
 
     @GetMapping("/list")
     public ResponseEntity<?> listUsers(@RequestParam(defaultValue = "id") String sortBy) {
-        if (!ALLOWED_SORT_COLUMNS.contains(sortBy)) {
+        // Allowlist validation to prevent SQL injection in ORDER BY clause
+        List<String> allowedColumns = List.of("id", "username", "email", "role");
+        if (!allowedColumns.contains(sortBy)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid sort column"));
         }
         String sql = "SELECT id, username, email, role FROM users ORDER BY " + sortBy;
