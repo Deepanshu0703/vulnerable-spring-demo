@@ -34,13 +34,18 @@ public class UserController {
 
     @GetMapping("/byId")
     public ResponseEntity<?> getUserById(@RequestParam String id) {
-        String sql = "SELECT id, username, email, role FROM users WHERE id = " + id;
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, id);
         return ResponseEntity.ok(results);
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> listUsers(@RequestParam(defaultValue = "id") String sortBy) {
+        // Allowlist validation to prevent SQL injection in ORDER BY clause
+        List<String> allowedColumns = List.of("id", "username", "email", "role");
+        if (!allowedColumns.contains(sortBy)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid sort column"));
+        }
         String sql = "SELECT id, username, email, role FROM users ORDER BY " + sortBy;
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(results);
